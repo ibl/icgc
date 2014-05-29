@@ -5,7 +5,7 @@ All you need is
 
 	<script src="https://ibl.github.io/icgc/icgc.js"></script>
 
-Live at: [http://ibl.github.io/cbio/](http://ibl.github.io/icgc/)
+Live at: [http://ibl.github.io/icgc/](http://ibl.github.io/icgc/)
 
 ---
 
