@@ -25,26 +25,26 @@ icgc.getScript = function (url,cb,er){ // load script / JSON
 	return s.id;
 }
 
-icgc.get = function(x,fun){ // submit command cmd to icgc WebAPI and process it through callback function fun
-	if(!x){x={cmd:'releases'}};
-	var cmd = x.cmd;
-	delete x.cmd;
+icgc.get = function(x,fun){ // submit command path to icgc WebAPI and process it through callback function fun
+	if(!x){x={path:'releases'}};
+	var path = x.path;
+	delete x.path;
 	if(!fun){fun=function(x){console.log(x)}};
 	if(!icgc.get.callbacks){icgc.get.callbacks={}};
 	if(!icgc.get.cache){icgc.get.cache={}};
 	var uid = this.uid('get');
 	var Qparms="&"+icgc.parms(x);
 	this.get.callbacks[uid]={ // this can be used as a cache to avoid repeating calls
-		cmd:cmd,
-		fun:function(x){icgc.get.cache[cmd+Qparms]=x;return fun(x)},
+		path:path,
+		fun:function(x){icgc.get.cache[path+Qparms]=x;return fun(x)},
 		t:Date.now()
 	}
-	if(!this.get.cache[cmd+Qparms]){ // this is not in the cache already
-		var url='https://script.google.com/macros/s/AKfycbxjJBbr6dXXJGCLsJ-KZ_NacYsaNY-EsQv5HUMYvI_Fq13DNblq/exec?cmd='+cmd+'&callback=icgc.get.callbacks.'+uid+'.fun'+Qparms;
+	if(!this.get.cache[path+Qparms]){ // this is not in the cache already
+		var url='https://script.google.com/macros/s/AKfycbxjJBbr6dXXJGCLsJ-KZ_NacYsaNY-EsQv5HUMYvI_Fq13DNblq/exec?path='+path+'&callback=icgc.get.callbacks.'+uid+'.fun'+Qparms;
 		console.log(url);
 		this.getScript(url);
 	} else {
-		icgc.get.callbacks[uid].fun(this.get.cache[cmd+Qparms]);
+		icgc.get.callbacks[uid].fun(this.get.cache[path+Qparms]);
 	}
 
 	// proxy code at https://script.google.com/a/macros/mathbiol.org/d/17o5B1sXjmUEWRHG_6vHQhmz3qTMPCgpOvlX1kNvDQCkVcrH5ANsi2NrY/edit
@@ -60,18 +60,17 @@ icgc.parms = function(x){ // converts JSON formated parameters into URL call que
 	return encodeURI(y.slice(0,y.length-1));
 }
 
-icgc.urlCall=function(x){ // generates the URL to ICGC's service, the same used by the Google AppScript proxy
-	if(!x){x={cmd:'releases'}};
-	var cmd = x.cmd;
-	delete x.cmd;
+icgc.getUrl=function(x){ // generates the URL to ICGC's service, the same used by the Google AppScript proxy
+	if(!x){x={path:'releases'}};
+	var path = x.path;
+	delete x.path;
 	queryString = icgc.parms(x);
-	return "https://dcc.icgc.org/api/v1/"+cmd+"?"+queryString;
+	return "https://dcc.icgc.org/api/v1/"+path+"?"+queryString;
 }
 
 icgc.openUrl = function(url,op){
 	switch(op){
 	case undefined:
-		this.openUrl(url,2);
 		break; // move on
 	case 1: // open in a new window
 		window.open(url);
@@ -102,6 +101,7 @@ icgc.openUrl = function(url,op){
 
 icgc.portal=function(x,id,s){ // open UI to icgc portal with filter, note s which can be "m" or "g" depending on the target representation being for genes or mutation
 	if(!s){var s = ""} else { s="/"+s }
+	if(!id){id=this.uid('portal')}
 	var url = "https://dcc.icgc.org/search"+s+"?"+icgc.parms(x);
 	if(!!id){
 		icgc.openUrl(url,id);
