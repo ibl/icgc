@@ -16,7 +16,7 @@ icgc.removeEl=function(id){
 
 icgc.getScript = function (url,cb,er){ // load script / JSON
 	var s = document.createElement('script');
-	s.src=url;
+	s.src=url; // console.log("URL: "+url);
 	s.id = this.uid();
 	if(!!cb){s.onload=cb}
 	if(!!er){s.onerror=er}
