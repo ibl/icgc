@@ -25,6 +25,16 @@ icgc.getScript = function (url,cb,er){ // load script / JSON
 	return s.id;
 }
 
+icgc.xhr=function(url,cb,method,data){
+    var xhr = new XMLHttpRequest();
+    if(!method){method="GET"}
+    if(!cb){cb=function(x){console.log(x.target.response)}}
+    xhr.open(method,url);//,data); // make sure data is indeed the 3rd input argument
+    xhr.onload=cb;
+    xhr.send();
+    return xhr;
+}
+
 icgc.get = function(x,fun){ // submit command path to icgc WebAPI and process it through callback function fun
 	if(!x){x={path:'releases'}};
 	var path = x.path;
@@ -40,9 +50,11 @@ icgc.get = function(x,fun){ // submit command path to icgc WebAPI and process it
 		t:Date.now()
 	}
 	if(!this.get.cache[path+Qparms]){ // this is not in the cache already
-		var url='https://script.google.com/macros/s/AKfycbxjJBbr6dXXJGCLsJ-KZ_NacYsaNY-EsQv5HUMYvI_Fq13DNblq/exec?path='+path+'&callback=icgc.get.callbacks.'+uid+'.fun'+Qparms;
-		console.log(url);
-		this.getScript(url);
+		//var url='https://script.google.com/macros/s/AKfycbxjJBbr6dXXJGCLsJ-KZ_NacYsaNY-EsQv5HUMYvI_Fq13DNblq/exec?path='+path+'&callback=icgc.get.callbacks.'+uid+'.fun'+Qparms;
+		var url='https://dcc.icgc.org/api/v1/'+path+'?'+Qparms.slice(1);
+		console.log(url+" ...");
+		this.xhr(url,function(x){console.log("... done");fun(JSON.parse(x.target.response))});
+		//this.getScript(url);
 	} else {
 		icgc.get.callbacks[uid].fun(this.get.cache[path+Qparms]);
 	}
